@@ -1,3 +1,19 @@
+# == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
+if(WIN32)
+    set(USERHOME $ENV{USERPROFILE})
+else()
+    set(USERHOME $ENV{HOME})
+endif()
+set(sdkVersion 2.2.0)
+set(toolchainVersion 14_2_Rel1)
+set(picotoolVersion 2.2.0-a4)
+set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
+if (EXISTS ${picoVscode})
+    include(${picoVscode})
+endif()
+# ====================================================================================
+set(PICO_BOARD pico CACHE STRING "Board type")
+
 cmake_minimum_required(VERSION 3.12)
 
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
@@ -50,20 +66,22 @@ pico_generate_pio_header(debugprobe ${CMAKE_CURRENT_LIST_DIR}/src/autobaud.pio)
 target_include_directories(debugprobe PRIVATE src)
 
 # add version
-add_custom_target(version
-        ${CMAKE_SOURCE_DIR}/get-version.sh
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
+#add_custom_target(version
+#        ${CMAKE_SOURCE_DIR}/get-version.sh
+#        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#)
 
-target_include_directories(debugprobe PRIVATE
-        ${CMAKE_BINARY_DIR}/generated
-        )
+#target_include_directories(debugprobe PRIVATE
+#        ${CMAKE_BINARY_DIR}/generated
+#        )
 
-add_dependencies(debugprobe version)
+#add_dependencies(debugprobe version)
 
 target_compile_definitions (debugprobe PRIVATE
 	PICO_RP2040_USB_DEVICE_ENUMERATION_FIX=1
 )
+
+set(DEBUG_ON_PICO 1)
 
 option (DEBUG_ON_PICO "Compile firmware for the Pico instead of Debug Probe" OFF)
 if (DEBUG_ON_PICO)
