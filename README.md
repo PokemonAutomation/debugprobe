@@ -8,6 +8,7 @@ This fork adds a second UART/CDC bridge along with support for the SeeedStudio X
 - D7/P1 (UART 0) -> CDC 0 RX
 - D0/P26 (PIO)   -> CDC 1 TX
 - D1/P27 (PIO)   -> CDC 1 RX
+- D2/P28         -> Reset
 
 
 --------
