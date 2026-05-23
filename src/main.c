@@ -146,11 +146,16 @@ int main(void) {
     usb_serial_init();
     cdc_uart_init();
     tusb_init();
-    stdio_uart_init();
+    stdio_uart_init_full(
+      PROBE_STDIO_INTERFACE,
+      PICO_DEFAULT_UART_BAUD_RATE,
+      PROBE_STDIO_TX,
+      PROBE_STDIO_RX
+    );
 
     DAP_Setup();
 
-    probe_info("Welcome to debugprobe!\n");
+    printf("Welcome to debugprobe!\n");
 
     if (THREADED) {
         xTaskCreate(usb_thread, "TUD", configMINIMAL_STACK_SIZE, NULL, TUD_TASK_PRIO, &tud_taskhandle);

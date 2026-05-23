@@ -1,4 +1,17 @@
-# Debugprobe
+# Debugprobe (Double UART for SeeedStudio Xiao)
+
+This fork adds a second UART/CDC bridge along with support for the SeeedStudio Xiao.
+
+- D8/P2          -> Target SWCLK
+- D10/P3         -> Target SWDIO
+- D6/P0 (UART 0) -> CDC 0 TX
+- D7/P1 (UART 0) -> CDC 0 RX
+- D0/P26 (PIO)   -> CDC 1 TX
+- D1/P27 (PIO)   -> CDC 1 RX
+
+
+--------
+
 
 Firmware source for the Raspberry Pi Debug Probe SWD/UART accessory. Can also be run on a Raspberry Pi Pico or Pico 2.
 

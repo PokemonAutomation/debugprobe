@@ -2,10 +2,10 @@
 #include "pico/binary_info.h"
 //#include "probe/version.h"
 
+#define PROBE_VERSION "1.00"
+
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
-
-#define PROBE_VERSION "1.0.0"
 
 
 void bi_decl_config()

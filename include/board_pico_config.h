@@ -38,10 +38,17 @@
 #define PROBE_PIN_RESET 1
 
 // UART config
+#define PROBE_STDIO_INTERFACE uart0
+#define PROBE_STDIO_TX 0
+#define PROBE_STDIO_RX 1
+
 #define PROBE_UART_TX 4
 #define PROBE_UART_RX 5
 #define PROBE_UART_INTERFACE uart1
 #define PROBE_UART_BAUDRATE 115200
+
+#define PROBE_PIO_TX 26
+#define PROBE_PIO_RX 27
 
 #define PROBE_USB_CONNECTED_LED 25
 

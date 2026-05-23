@@ -62,6 +62,8 @@ target_compile_options(debugprobe PRIVATE -Wall)
 pico_generate_pio_header(debugprobe ${CMAKE_CURRENT_LIST_DIR}/src/probe.pio)
 pico_generate_pio_header(debugprobe ${CMAKE_CURRENT_LIST_DIR}/src/probe_oen.pio)
 pico_generate_pio_header(debugprobe ${CMAKE_CURRENT_LIST_DIR}/src/autobaud.pio)
+pico_generate_pio_header(debugprobe ${CMAKE_CURRENT_LIST_DIR}/src/uart_tx.pio)
+pico_generate_pio_header(debugprobe ${CMAKE_CURRENT_LIST_DIR}/src/uart_rx.pio)
 
 target_include_directories(debugprobe PRIVATE src)
 
@@ -81,12 +83,13 @@ target_compile_definitions (debugprobe PRIVATE
 	PICO_RP2040_USB_DEVICE_ENUMERATION_FIX=1
 )
 
-set(DEBUG_ON_PICO 1)
+#set(DEBUG_ON_PICO 1)
+set(DEBUG_ON_XIAO 1)
 
 option (DEBUG_ON_PICO "Compile firmware for the Pico instead of Debug Probe" OFF)
 if (DEBUG_ON_PICO)
     target_compile_definitions (debugprobe PRIVATE
-	DEBUG_ON_PICO=1
+	    DEBUG_ON_PICO=1
     )
     if (PICO_BOARD STREQUAL "pico")
         set_target_properties(debugprobe PROPERTIES
@@ -99,6 +102,13 @@ if (DEBUG_ON_PICO)
     else ()
         message(SEND_ERROR "Unsupported board ${PICO_BOARD}")
     endif ()
+elseif (DEBUG_ON_XIAO)
+    target_compile_definitions (debugprobe PRIVATE
+	    DEBUG_ON_XIAO=1
+    )
+    set_target_properties(debugprobe PROPERTIES
+        OUTPUT_NAME "debugprobe_on_xiao_rp2040"
+    )
 endif ()
 
 
