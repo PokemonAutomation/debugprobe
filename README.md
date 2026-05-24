@@ -2,13 +2,20 @@
 
 This fork adds a second UART/CDC bridge along with support for the SeeedStudio Xiao.
 
-- D8/P2          -> Target SWCLK
-- D10/P3         -> Target SWDIO
-- D6/P0 (UART 0) -> CDC 0 TX
-- D7/P1 (UART 0) -> CDC 0 RX
-- D0/P26 (PIO)   -> CDC 1 TX
-- D1/P27 (PIO)   -> CDC 1 RX
-- D2/P28         -> Reset
+| Xiao RP2040 Pin | Target Pin | Notes |
+|---|---|---|
+| D8/P2 | SWCLK   | |
+| D10/P3 | SWDIO   | |
+| D6/P0 (UART 0 TX) | UART 0 RX | CDC 0 |
+| D7/P1 (UART 0 RX) | UART 0 TX | CDC 0 |
+| D0/P26 (PIO* UART TX) | UART 1 RX | CDC 1 |
+| D1/P27 (PIO* UART RX) | UART 1 TX | CDC 1 |
+| D9/P4 (UART 1 TX) |  | Debug probe’s stdout (baud 115200) |
+| D2/P28 | Reset | (Optional) |
+| D4/P6 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
+| D5/P7 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
+
+*The PIO UART only supports 8-bit word, 1 stop bit, no flow control.
 
 
 --------
