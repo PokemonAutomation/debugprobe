@@ -79,6 +79,8 @@ const UartInterface UART_INTERFACE_UART0 = {
     false,
 };
 
+
+
 #ifdef PROBE_USE_PIO_FOR_UART1
 
 #include "uart_tx.pio.h"

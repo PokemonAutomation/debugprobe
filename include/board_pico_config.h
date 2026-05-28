@@ -35,20 +35,23 @@
 #define PROBE_PIN_SWCLK (PROBE_PIN_OFFSET + 0) // 2
 #define PROBE_PIN_SWDIO (PROBE_PIN_OFFSET + 1) // 3
 // Target reset config
-#define PROBE_PIN_RESET 1
+#define PROBE_PIN_RESET 28
+
+#define PROBE_CDCS      2
 
 // UART config
-#define PROBE_STDIO_INTERFACE uart0
-#define PROBE_STDIO_TX 0
-#define PROBE_STDIO_RX 1
+//#define PROBE_STDIO_INTERFACE uart0
+//#define PROBE_STDIO_TX 0
+//#define PROBE_STDIO_RX 1
 
-#define PROBE_UART_TX 4
-#define PROBE_UART_RX 5
-#define PROBE_UART_INTERFACE uart1
 #define PROBE_UART_BAUDRATE 115200
+#define PROBE_UART_INTERFACE uart0
+#define PROBE_UART_TX   0
+#define PROBE_UART_RX   1
 
-#define PROBE_UART1_TX 26
-#define PROBE_UART1_RX 27
+#define PROBE_UART1_INTERFACE uart1
+#define PROBE_UART1_TX  4
+#define PROBE_UART1_RX  5
 
 #define PROBE_USB_CONNECTED_LED 25
 

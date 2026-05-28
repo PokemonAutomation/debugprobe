@@ -58,8 +58,10 @@ static uint rx_led_debounce;
 void cdc_uart_init(void) {
     UART_INTERFACES[0].setup();
     UART_INTERFACES[0].init(PROBE_UART_BAUDRATE);
+#if PROBE_CDCS >= 2
     UART_INTERFACES[1].setup();
     UART_INTERFACES[1].init(PROBE_UART_BAUDRATE);
+#endif
 
 #ifdef PROBE_UART_TX_LED
     tx_led_debounce = 0;
@@ -156,7 +158,6 @@ bool cdc_task(uint8_t itf)
 #endif
       }
 
-#if 1
     /* Reading from a firehose and writing to a FIFO. */
     RingBuffer* cdc_to_uart_buffer = &ring_buffers[itf][1];
     size_t write_bytes;
@@ -190,28 +191,6 @@ bool cdc_task(uint8_t itf)
           gpio_put(PROBE_UART_TX_LED, 0);
 #endif
     }
-#else
-    /* Reading from a firehose and writing to a FIFO. */
-    size_t watermark = MIN(tud_cdc_n_available(itf), sizeof(tx_buf));
-    if (watermark > 0) {
-      size_t tx_len;
-#ifdef PROBE_UART_TX_LED
-      gpio_put(PROBE_UART_TX_LED, 1);
-      tx_led_debounce = debounce_ticks;
-#endif
-      /* Batch up to half a FIFO of data - don't clog up on RX */
-      watermark = MIN(watermark, 16);
-      tx_len = tud_cdc_n_read(itf, tx_buf, watermark);
-      uart.write_blocking(tx_buf, tx_len);
-    } else {
-#ifdef PROBE_UART_TX_LED
-        if (tx_led_debounce)
-          tx_led_debounce--;
-        else
-          gpio_put(PROBE_UART_TX_LED, 0);
-#endif
-    }
-#endif
 
 
     /* Pending break handling */

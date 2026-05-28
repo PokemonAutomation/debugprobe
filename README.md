@@ -1,35 +1,53 @@
-# Debugprobe (Double UART for SeeedStudio Xiao)
+# Debugprobe (Double UART + SeeedStudio Xiao)
 
-This fork adds a second UART/CDC bridge along with support for the SeeedStudio Xiao.
+This fork:
+- Adds a 2nd UART/CDC bridge.
+- Adds support for the SeeedStudio Xiao.
+- Removes the auto-baud since I didn't try to make it work with 2 x CDC.
+
+
+## Pico 1 and Pico 2 (2 x UART)
+
+| Pico 1/Pico 2 Pin | Target Pin | Notes |
+|---|---|---|
+| Pin 4 / GP2 | SWCLK   | |
+| Pin 5 / GP3 | SWDIO   | |
+| Pin 1 / GP0 (UART 0 TX) | UART 0 RX | CDC 0 |
+| Pin 2 / GP1 (UART 0 RX) | UART 0 TX | CDC 0 |
+| Pin 6 / GP4 (UART 1 TX) | UART 1 RX | CDC 1 |
+| Pin 7 / GP5 (UART 1 RX) | UART 1 TX | CDC 1 |
+| Pin 34 / GP28 | Reset | (Optional) |
+| Pin 9 / GP6 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
+| Pin 10 / GP7 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
+
+
+## Xiao RP2040 (1 x UART)
 
 | Xiao RP2040 Pin | Target Pin | Notes |
 |---|---|---|
-| D8/P2 | SWCLK   | |
-| D10/P3 | SWDIO   | |
-| D6/P0 (UART 0 TX) | UART 0 RX | CDC 0 |
-| D7/P1 (UART 0 RX) | UART 0 TX | CDC 0 |
-| D0/P26 (PIO* UART TX) | UART 1 RX | CDC 1 |
-| D1/P27 (PIO* UART RX) | UART 1 TX | CDC 1 |
-| D9/P4 (UART 1 TX) |  | Debug probe’s stdout (baud 115200) |
-| D2/P28 | Reset | (Optional) |
-| D4/P6 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
-| D5/P7 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
+| D8 / GP2 | SWCLK   | |
+| D10 / GP3 | SWDIO   | |
+| D6 / GP0 (UART 0 TX) | UART 0 RX | CDC 0 |
+| D7 / GP1 (UART 0 RX) | UART 0 TX | CDC 0 |
+| D9 / GP4 (UART 1 TX) |  | Debug probe’s stdout (baud 115200) |
+| D2 / GP28 | Reset | (Optional) |
+| D4 / GP6 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
+| D5 / GP7 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
 
-*The PIO UART is very unstable and only supports 8-bit word, 1 stop bit, no flow control.
 
+## Xiao RP2350 (2 x UART)
 
 | Xiao RP2350 Pin | Target Pin | Notes |
 |---|---|---|
-| D8/P2 | SWCLK   | |
-| D10/P3 | SWDIO   | |
-| D6/P0 (UART 0 TX) | UART 0 RX | CDC 0 |
-| D7/P1 (UART 0 RX) | UART 0 TX | CDC 0 |
-| D0/P26 (UART 1 TX) | UART 1 RX | CDC 1 |
-| D1/P27 (UART 1 RX) | UART 1 TX | CDC 1 |
-| D9/P4 (UART 1 TX) |  | Debug probe’s stdout (baud 115200) |
-| D2/P28 | Reset | (Optional) |
-| D4/P6 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
-| D5/P7 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
+| D8 / GP2 | SWCLK   | |
+| D10 / GP3 | SWDIO   | |
+| D6 / GP0 (UART 0 TX) | UART 0 RX | CDC 0 |
+| D7 / GP1 (UART 0 RX) | UART 0 TX | CDC 0 |
+| D0 / GP26 (UART 1 TX) | UART 1 RX | CDC 1 |
+| D1 / GP27 (UART 1 RX) | UART 1 TX | CDC 1 |
+| D2 / GP28 | Reset | (Optional) |
+| D4 / GP6 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
+| D5 / GP7 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
 
 
 --------
