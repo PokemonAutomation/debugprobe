@@ -5,8 +5,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define RingBuffer_BUFFER_SIZE  ((size_t)1024)
+//  Must be power-of-two.
+#define RingBuffer_BUFFER_SIZE  ((size_t)256)
 const size_t RingBuffer_BUFFER_MASK = RingBuffer_BUFFER_SIZE - 1;
+
 typedef struct{
     size_t head;
     size_t tail;
@@ -46,7 +48,7 @@ uint8_t* RingBuffer_write_buffer(RingBuffer* buffer, size_t* available_bytes){
 
     tail &= RingBuffer_BUFFER_MASK;
     head &= RingBuffer_BUFFER_MASK;
-    if (tail > head){
+    if (tail >= head){
         available = RingBuffer_BUFFER_SIZE - tail;
     }
 

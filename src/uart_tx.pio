@@ -50,6 +50,9 @@ static inline void uart_tx_program_init(PIO pio, uint sm, uint offset, uint pin_
     pio_sm_set_enabled(pio, sm, true);
 }
 
+static inline bool uart_tx_program_has_space(PIO pio, uint sm) {
+    return !pio_sm_is_tx_fifo_full(pio, sm);
+}
 static inline void uart_tx_program_putc(PIO pio, uint sm, char c) {
     pio_sm_put_blocking(pio, sm, (uint32_t)c);
 }

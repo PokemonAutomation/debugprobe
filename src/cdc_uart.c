@@ -41,8 +41,6 @@ volatile TickType_t break_expiry;
 volatile bool timed_break;
 
 /* Max 1 FIFO worth of data */
-static uint8_t tx_buf[32];
-//static uint8_t rx_buf[32];
 // Actually s^-1 so 25ms
 #define DEBOUNCE_MS 40
 static uint debounce_ticks = 5;
@@ -106,6 +104,9 @@ RingBuffer ring_buffers[2][2] = {};
 
 bool cdc_task(uint8_t itf)
 {
+  /* Batch up to half a FIFO of data - don't clog up on RX */
+  const size_t MAX_FETCH = 16;
+
   UartInterface uart = UART_INTERFACES[itf];
 
 //  uint rx_len = 0;
@@ -116,6 +117,9 @@ bool cdc_task(uint8_t itf)
   {
     size_t size = RingBuffer_size(uart_to_cdc_buffer);
     size_t bytes = RingBuffer_BUFFER_SIZE - size;
+    if (bytes > MAX_FETCH){
+        bytes = MAX_FETCH;
+    }
     while (bytes > 0 && uart.is_readable()){
         uint8_t c = uart.getc();
         RingBuffer_putc(uart_to_cdc_buffer, c);
@@ -135,6 +139,9 @@ bool cdc_task(uint8_t itf)
 #endif
         size_t read_bytes;
         const uint8_t* data = RingBuffer_read_buffer(uart_to_cdc_buffer, &read_bytes);
+        if (read_bytes > MAX_FETCH){
+            read_bytes = MAX_FETCH;
+        }
         if (read_bytes > 0){
             size_t write_bytes = tud_cdc_n_write(itf, data, read_bytes);
             tud_cdc_n_write_flush(itf);
@@ -149,14 +156,15 @@ bool cdc_task(uint8_t itf)
 #endif
       }
 
-#if 0
+#if 1
     /* Reading from a firehose and writing to a FIFO. */
     RingBuffer* cdc_to_uart_buffer = &ring_buffers[itf][1];
     size_t write_bytes;
     uint8_t* data = RingBuffer_write_buffer(cdc_to_uart_buffer, &write_bytes);
-    write_bytes = MIN(write_bytes, tud_cdc_n_available(itf));
-    if (write_bytes > 0){
-//      printf("CDC -> device: %zu\n", write_bytes);
+    if (write_bytes > MAX_FETCH){
+        write_bytes = MAX_FETCH;
+    }
+    if (write_bytes > 0) {
 #ifdef PROBE_UART_TX_LED
       gpio_put(PROBE_UART_TX_LED, 1);
       tx_led_debounce = debounce_ticks;
@@ -165,41 +173,15 @@ bool cdc_task(uint8_t itf)
       RingBuffer_push_back(cdc_to_uart_buffer, write_bytes);
 
       size_t read_bytes;
-      const uint8_t* read = RingBuffer_read_buffer(cdc_to_uart_buffer, &read_bytes);
-      read_bytes = MIN(read_bytes, 16);
-//      read_bytes = uart.write(read, read_bytes);
-      uart.write_blocking(read, read_bytes);
-      RingBuffer_pop_front(cdc_to_uart_buffer, read_bytes);
-    } else {
-#ifdef PROBE_UART_TX_LED
-        if (tx_led_debounce)
-          tx_led_debounce--;
-        else
-          gpio_put(PROBE_UART_TX_LED, 0);
-#endif
-    }
-#elif 0
-    /* Reading from a firehose and writing to a FIFO. */
-    RingBuffer* cdc_to_uart_buffer = &ring_buffers[itf][1];
-    size_t write_bytes;
-    uint8_t* data = RingBuffer_write_buffer(cdc_to_uart_buffer, &write_bytes);
-    size_t watermark = MIN(tud_cdc_n_available(itf), write_bytes);
-    if (watermark > 0) {
-      size_t tx_len;
-#ifdef PROBE_UART_TX_LED
-      gpio_put(PROBE_UART_TX_LED, 1);
-      tx_led_debounce = debounce_ticks;
-#endif
-      /* Batch up to half a FIFO of data - don't clog up on RX */
-      watermark = MIN(watermark, 16);
-      size_t watermark = watermark;
-      watermark = tud_cdc_n_read(itf, data, watermark);
-      RingBuffer_push_back(cdc_to_uart_buffer, watermark);
+      const uint8_t* read_buffer = RingBuffer_read_buffer(cdc_to_uart_buffer, &read_bytes);
 
-      size_t write_bytes;
-//      const uint8_t* data = RingBuffer_read_buffer(cdc_to_uart_buffer, &write_bytes);
-      uart.write_blocking(data, watermark);
-      RingBuffer_pop_front(cdc_to_uart_buffer, watermark);
+      /* Batch up to half a FIFO of data - don't clog up on RX */
+      if (read_bytes > MAX_FETCH){
+          read_bytes = MAX_FETCH;
+      }
+
+      read_bytes = uart.write(read_buffer, read_bytes);
+      RingBuffer_pop_front(cdc_to_uart_buffer, read_bytes);
     } else {
 #ifdef PROBE_UART_TX_LED
         if (tx_led_debounce)

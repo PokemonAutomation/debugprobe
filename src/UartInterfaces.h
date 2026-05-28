@@ -133,6 +133,13 @@ char uart_iface_pio_getc(){
 #endif
 }
 size_t uart_iface_pio_write(const uint8_t* data, size_t len){
+    for (size_t c = 0; c < len; c++){
+        if (!uart_tx_program_has_space(pio_tx_pio, pio_tx_sm)){
+            return c;
+        }
+        uart_tx_program_putc(pio_tx_pio, pio_tx_sm, data[c]);
+    }
+    return len;
 }
 void uart_iface_pio_write_blocking(const uint8_t* data, size_t len){
 #if 1
