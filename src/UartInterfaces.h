@@ -10,6 +10,7 @@ typedef struct{
     void (*deinit)();
     bool (*is_readable)();
     char (*getc)();
+    size_t (*write)(const uint8_t* data, size_t len);
     void (*write_blocking)(const uint8_t* data, size_t len);
     void (*set_format)(uint data_bits, uint stop_bits, uart_parity_t parity);
     void (*set_break)(bool enable);
@@ -67,6 +68,7 @@ const UartInterface UART_INTERFACE_UART0 = {
     uart_iface_uart0_deinit,
     uart_iface_uart0_is_readable,
     uart_iface_uart0_getc,
+    uart_iface_uart0_write,
     uart_iface_uart0_write_blocking,
     uart_iface_uart0_set_format,
     uart_iface_uart0_set_break,
@@ -130,6 +132,8 @@ char uart_iface_pio_getc(){
     return 0;
 #endif
 }
+size_t uart_iface_pio_write(const uint8_t* data, size_t len){
+}
 void uart_iface_pio_write_blocking(const uint8_t* data, size_t len){
 #if 1
     for (size_t c = 0; c < len; c++){
@@ -148,6 +152,7 @@ const UartInterface UART_INTERFACE_PIO = {
     uart_iface_pio_deinit,
     uart_iface_pio_is_readable,
     uart_iface_pio_getc,
+    uart_iface_pio_write,
     uart_iface_pio_write_blocking,
     uart_iface_pio_set_format,
     uart_iface_pio_set_break,
@@ -203,6 +208,7 @@ const UartInterface UART_INTERFACE_UART1 = {
     uart_iface_uart1_deinit,
     uart_iface_uart1_is_readable,
     uart_iface_uart1_getc,
+    uart_iface_uart1_write,
     uart_iface_uart1_write_blocking,
     uart_iface_uart1_set_format,
     uart_iface_uart1_set_break,

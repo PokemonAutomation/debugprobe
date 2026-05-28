@@ -39,11 +39,11 @@
 
 // UART config
 
-#define PROBE_USE_PIO_FOR_UART1
+//#define PROBE_USE_PIO_FOR_UART1
 
-//#define PROBE_STDIO_INTERFACE uart1
-//#define PROBE_STDIO_TX 4
-//#define PROBE_STDIO_RX 5
+#define PROBE_STDIO_INTERFACE uart0
+#define PROBE_STDIO_TX 0
+#define PROBE_STDIO_RX 1
 
 #define PROBE_UART_TX 0
 #define PROBE_UART_RX 1
@@ -56,6 +56,6 @@
 
 #define PROBE_USB_CONNECTED_LED 25
 
-#define PROBE_PRODUCT_STRING "Debugprobe on Xiao RP2040 (CMSIS-DAP)"
+#define PROBE_PRODUCT_STRING "Debugprobe on Xiao (CMSIS-DAP)"
 
 #endif
