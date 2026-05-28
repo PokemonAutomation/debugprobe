@@ -15,7 +15,21 @@ This fork adds a second UART/CDC bridge along with support for the SeeedStudio X
 | D4/P6 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
 | D5/P7 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
 
-*The PIO UART only supports 8-bit word, 1 stop bit, no flow control.
+*The PIO UART is very unstable and only supports 8-bit word, 1 stop bit, no flow control.
+
+
+| Xiao RP2350 Pin | Target Pin | Notes |
+|---|---|---|
+| D8/P2 | SWCLK   | |
+| D10/P3 | SWDIO   | |
+| D6/P0 (UART 0 TX) | UART 0 RX | CDC 0 |
+| D7/P1 (UART 0 RX) | UART 0 TX | CDC 0 |
+| D0/P26 (UART 1 TX) | UART 1 RX | CDC 1 |
+| D1/P27 (UART 1 RX) | UART 1 TX | CDC 1 |
+| D9/P4 (UART 1 TX) |  | Debug probe’s stdout (baud 115200) |
+| D2/P28 | Reset | (Optional) |
+| D4/P6 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
+| D5/P7 | TBD | Unused - Reserved for reset/bootloader shenanigans. |
 
 
 --------

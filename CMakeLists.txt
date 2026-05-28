@@ -12,7 +12,7 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pico CACHE STRING "Board type")
+set(PICO_BOARD pico2 CACHE STRING "Board type")
 
 cmake_minimum_required(VERSION 3.12)
 
@@ -106,9 +106,17 @@ elseif (DEBUG_ON_XIAO)
     target_compile_definitions (debugprobe PRIVATE
 	    DEBUG_ON_XIAO=1
     )
-    set_target_properties(debugprobe PROPERTIES
-        OUTPUT_NAME "debugprobe_on_xiao_rp2040"
-    )
+    if (PICO_BOARD STREQUAL "pico")
+        set_target_properties(debugprobe PROPERTIES
+            OUTPUT_NAME "debugprobe_on_xiao_rp2040"
+        )
+    elseif (PICO_BOARD STREQUAL "pico2")
+        set_target_properties(debugprobe PROPERTIES
+            OUTPUT_NAME "debugprobe_on_xiao_rp2350"
+        )
+    else ()
+        message(SEND_ERROR "Unsupported board ${PICO_BOARD}")
+    endif ()
 endif ()
 
 

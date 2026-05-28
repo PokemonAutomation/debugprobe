@@ -30,8 +30,9 @@
 #include "autobaud.h"
 
 #include "probe_config.h"
-#include "uart_tx.pio.h"
-#include "uart_rx.pio.h"
+
+#include "uart_interfaces.h"
+
 
 TaskHandle_t uart_taskhandle;
 TickType_t last_wake;
@@ -55,40 +56,11 @@ static uint rx_led_debounce;
 
 //static BaudInfo_t baud_info;
 
-PIO pio_tx_pio;
-uint pio_tx_sm;
-uint pio_tx_offset;
-
-PIO pio_rx_pio;
-uint pio_rx_sm;
-uint pio_rx_offset;
-
 void cdc_uart_init(void) {
-    gpio_set_function(PROBE_UART_TX, GPIO_FUNC_UART);
-    gpio_set_function(PROBE_UART_RX, GPIO_FUNC_UART);
-    gpio_set_pulls(PROBE_UART_TX, 1, 0);
-    gpio_set_pulls(PROBE_UART_RX, 1, 0);
-    uart_init(PROBE_UART_INTERFACE, PROBE_UART_BAUDRATE);
-
-#if 1
-    {
-      bool success = pio_claim_free_sm_and_add_program_for_gpio_range(
-        &uart_tx_program,
-        &pio_tx_pio, &pio_tx_sm, &pio_tx_offset,
-        PROBE_PIO_TX, 1, true
-      );
-      hard_assert(success);
-    }
-    {
-      bool success = pio_claim_free_sm_and_add_program_for_gpio_range(
-        &uart_rx_program,
-        &pio_rx_pio, &pio_rx_sm, &pio_rx_offset,
-        PROBE_PIO_RX, 1, true
-      );
-      hard_assert(success);
-    }
-#endif
-
+    UART_INTERFACES[0].setup();
+    UART_INTERFACES[0].init(PROBE_UART_BAUDRATE);
+    UART_INTERFACES[1].setup();
+    UART_INTERFACES[1].init(PROBE_UART_BAUDRATE);
 
 #ifdef PROBE_UART_TX_LED
     tx_led_debounce = 0;
@@ -126,111 +98,8 @@ void cdc_uart_init(void) {
 }
 
 
-typedef struct{
-  void (*init)(uint baudrate);
-  void (*deinit)();
-  bool (*is_readable)();
-  char (*getc)();
-  void (*write_blocking)(const uint8_t* data, size_t len);
-  void (*set_format)(uint data_bits, uint stop_bits, uart_parity_t parity);
-  void (*set_break)(bool enable);
-
-  TickType_t interval;
-  uint cdc_tx_oe;
-  bool was_connected;
-  bool dtr;
-  bool rts;
-
-} UartInterface;
 
 
-void uart_iface_uart_init(uint baudrate){
-  uart_init(PROBE_UART_INTERFACE, baudrate);
-}
-void uart_iface_uart_deinit(){
-  uart_deinit(PROBE_UART_INTERFACE);
-}
-bool uart_iface_uart_is_readable(){
-  return uart_is_readable(PROBE_UART_INTERFACE);
-}
-char uart_iface_uart_getc(){
-  return uart_getc(PROBE_UART_INTERFACE);
-}
-void uart_iface_uart_write_blocking(const uint8_t* data, size_t len){
-  uart_write_blocking(PROBE_UART_INTERFACE, data, len);
-}
-void uart_iface_uart_set_format(uint data_bits, uint stop_bits, uart_parity_t parity){
-  uart_set_format(PROBE_UART_INTERFACE, data_bits, stop_bits, parity);
-}
-void uart_iface_uart_set_break(bool enable){
-  uart_set_break(PROBE_UART_INTERFACE, enable);
-}
-
-void uart_iface_pio_init(uint baudrate){
-#if 1
-  uart_tx_program_init(pio_tx_pio, pio_tx_sm, pio_tx_offset, PROBE_PIO_TX, baudrate);
-  uart_rx_program_init(pio_rx_pio, pio_rx_sm, pio_rx_offset, PROBE_PIO_RX, baudrate);
-#endif
-}
-void uart_iface_pio_deinit(){
-}
-bool uart_iface_pio_is_readable(){
-#if 1
-  return uart_rx_program_has_data(pio_rx_pio, pio_rx_sm);
-#else
-  return false;
-#endif
-}
-char uart_iface_pio_getc(){
-#if 1
-  return uart_rx_program_getc(pio_rx_pio, pio_rx_sm);
-#else
-  return 0;
-#endif
-}
-void uart_iface_pio_write_blocking(const uint8_t* data, size_t len){
-#if 1
-  for (size_t c = 0; c < len; c++){
-    uart_tx_program_putc(pio_tx_pio, pio_tx_sm, data[c]);
-  }
-#endif
-}
-void uart_iface_pio_set_format(uint data_bits, uint stop_bits, uart_parity_t parity){
-  //  Not supported
-}
-void uart_iface_pio_set_break(bool enable){
-}
-
-UartInterface UART_INTERFACES[] = {
-  {
-    uart_iface_uart_init,
-    uart_iface_uart_deinit,
-    uart_iface_uart_is_readable,
-    uart_iface_uart_getc,
-    uart_iface_uart_write_blocking,
-    uart_iface_uart_set_format,
-    uart_iface_uart_set_break,
-    100,
-    0,
-    false,
-    false,
-    false,
-  },
-  {
-    uart_iface_pio_init,
-    uart_iface_pio_deinit,
-    uart_iface_pio_is_readable,
-    uart_iface_pio_getc,
-    uart_iface_pio_write_blocking,
-    uart_iface_pio_set_format,
-    uart_iface_pio_set_break,
-    100,
-    0,
-    false,
-    false,
-    false,
-  },
-};
 
 
 
@@ -453,6 +322,11 @@ void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts)
 
   UART_INTERFACES[itf].dtr = dtr;
   UART_INTERFACES[itf].rts = rts;
+
+  printf(
+    "itf %d - dtr = %d, rts = %d\n",
+    itf, dtr, rts
+  );
 
   /* CDC drivers use linestate as a bodge to activate/deactivate the interface.
    * Resume our UART polling on activate, stop on deactivate */

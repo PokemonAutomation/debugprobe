@@ -146,12 +146,14 @@ int main(void) {
     usb_serial_init();
     cdc_uart_init();
     tusb_init();
+#ifdef PROBE_STDIO_INTERFACE
     stdio_uart_init_full(
       PROBE_STDIO_INTERFACE,
       PICO_DEFAULT_UART_BAUD_RATE,
       PROBE_STDIO_TX,
       PROBE_STDIO_RX
     );
+#endif
 
     DAP_Setup();
 
