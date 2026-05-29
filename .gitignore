@@ -1,2 +1,3 @@
 build
 .vscode/*
+debugprobe*.uf2
