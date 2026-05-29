@@ -71,8 +71,10 @@ enum
   ITF_NUM_PROBE, // Old versions of Keil MDK only look at interface 0
   ITF_NUM_CDC0_COM,
   ITF_NUM_CDC0_DATA,
+#if PROBE_CDCS >= 2
   ITF_NUM_CDC1_COM,
   ITF_NUM_CDC1_DATA,
+#endif
   ITF_NUM_TOTAL
 };
 
