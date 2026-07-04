@@ -30,6 +30,8 @@
 #define PROBE_CDC_UART
 // No reset pin 
 
+#define PROBE_ENABLE_DEBUGGER   1
+
 // PIO config
 #define PROBE_SM 0
 #define PROBE_PIN_OFFSET 12

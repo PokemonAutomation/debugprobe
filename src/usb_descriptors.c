@@ -37,7 +37,11 @@ tusb_desc_device_t const desc_device =
     .bLength            = sizeof(tusb_desc_device_t),
     .bDescriptorType    = TUSB_DESC_DEVICE,
 #if (PROBE_DEBUG_PROTOCOL == PROTO_DAP_V2)
+#if PROBE_ENABLE_DEBUGGER >= 1
     .bcdUSB             = 0x0210, // USB Specification version 2.1 for BOS
+#else
+    .bcdUSB             = 0x0200,
+#endif
 #else
     .bcdUSB             = 0x0110,
 #endif
@@ -68,7 +72,9 @@ uint8_t const * tud_descriptor_device_cb(void)
 
 enum
 {
+#if PROBE_ENABLE_DEBUGGER >= 1
   ITF_NUM_PROBE, // Old versions of Keil MDK only look at interface 0
+#endif
   ITF_NUM_CDC0_COM,
   ITF_NUM_CDC0_DATA,
 #if PROBE_CDCS >= 2
@@ -88,9 +94,9 @@ enum
 #define CDC1_DATA_IN_EP_NUM 0x88
 
 #if (PROBE_DEBUG_PROTOCOL == PROTO_DAP_V1)
-#define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + PROBE_CDCS*TUD_CDC_DESC_LEN + TUD_HID_INOUT_DESC_LEN)
+#define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + PROBE_CDCS*TUD_CDC_DESC_LEN + PROBE_ENABLE_DEBUGGER*TUD_HID_INOUT_DESC_LEN)
 #else
-#define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + PROBE_CDCS*TUD_CDC_DESC_LEN + TUD_VENDOR_DESC_LEN)
+#define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + PROBE_CDCS*TUD_CDC_DESC_LEN + PROBE_ENABLE_DEBUGGER*TUD_VENDOR_DESC_LEN)
 #endif
 
 static uint8_t const desc_hid_report[] =
@@ -107,6 +113,7 @@ uint8_t const * tud_hid_descriptor_report_cb(uint8_t itf)
 uint8_t desc_configuration[] =
 {
   TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0, 100),
+#if PROBE_ENABLE_DEBUGGER >= 1
   // Interface 0
 #if (PROBE_DEBUG_PROTOCOL == PROTO_DAP_V1)
   // HID (named interface)
@@ -118,6 +125,8 @@ uint8_t desc_configuration[] =
   // Bulk
   TUD_VENDOR_DESCRIPTOR(ITF_NUM_PROBE, 0, DAP_OUT_EP_NUM, DAP_IN_EP_NUM, 64),
 #endif
+#endif
+
   // Interface 1 + 2
   TUD_CDC_DESCRIPTOR(ITF_NUM_CDC0_COM, 6, CDC0_NOTIFICATION_EP_NUM, 64, CDC0_DATA_OUT_EP_NUM, CDC0_DATA_IN_EP_NUM, 64),
 #if PROBE_CDCS >= 2
@@ -236,7 +245,7 @@ uint8_t const desc_ms_os_20[] =
   U16_TO_U8S_LE(0x0008), U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_CONFIGURATION), 0, 0, U16_TO_U8S_LE(MS_OS_20_DESC_LEN-0x0A),
 
   // Function Subset header: length, type, first interface, reserved, subset length
-  U16_TO_U8S_LE(0x0008), U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_FUNCTION), ITF_NUM_PROBE, 0, U16_TO_U8S_LE(MS_OS_20_DESC_LEN-0x0A-0x08),
+  U16_TO_U8S_LE(0x0008), U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_FUNCTION), 0, 0, U16_TO_U8S_LE(MS_OS_20_DESC_LEN-0x0A-0x08),
 
   // MS OS 2.0 Compatible ID descriptor: length, type, compatible ID, sub compatible ID
   U16_TO_U8S_LE(0x0014), U16_TO_U8S_LE(MS_OS_20_FEATURE_COMPATBLE_ID), 'W', 'I', 'N', 'U', 'S', 'B', 0x00, 0x00,

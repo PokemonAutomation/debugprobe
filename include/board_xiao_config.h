@@ -29,6 +29,8 @@
 #define PROBE_IO_RAW
 #define PROBE_CDC_UART
 
+#define PROBE_ENABLE_DEBUGGER   1
+
 // PIO config
 #define PROBE_SM 0
 #define PROBE_PIN_OFFSET 2
